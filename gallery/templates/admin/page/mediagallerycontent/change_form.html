@@ -1,0 +1,23 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %}{{ block.super }}
+<style type="text/css">
+.field-mediafile-with-image-wrapper {
+    border-right: 1px solid #ccc;
+}
+
+.field-mediafile-with-image-wrapper strong {
+    display: block;
+    padding-top: 4px;
+    border-top: 1px solid #ccc;
+    text-align: center
+}
+
+.field-mediafile-with-image-wrapper .image-preview {
+    display: block;
+    padding-top: 4px;
+    width: 90%;
+}
+
+</style>
+{% endblock extrahead %}
