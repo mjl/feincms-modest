@@ -33,9 +33,18 @@ td.field-title input {
     display: block;
 }
 
+td.field-ordering {
+    display: none;
+}
+
 .vLargeTextField, .vXMLLargeTextField {
     width: 32em;
     height: 8em;
+}
+
+.sortable-placeholder {
+    height: 80px !important;
+    border: 4px dotted #68e;
 }
 
 /* Remove annoying header line with __unicode__ of inline element */
@@ -54,6 +63,9 @@ td.original p {
 {% block extrahead %}
 {{ block.super }}
 <!-- ---------------------------------------------- -->
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+
 <script type="text/javascript">
 //<![CDATA[
 
@@ -96,13 +108,39 @@ function dropOnto(ev) {
 (function($){
     $(function() {
 
-        /* Merge title/text columns */
+        /* Merge title/text columns, hide ordering */
         $('tr[id^=item_set-]').each(function(i, e) {
             e = $(e);
             e.find('td.field-title').append(e.find('td.field-text').detach().html());
         });
         $('th:contains(Text)').remove();
         $('th:contains(Title)').append('/ Text');
+        $('th:contains(Ordering)').css('display', 'none');
+
+        /* Make table sortable */
+        $('tbody').sortable({
+           cursor: 'move',
+           delay: 150,
+           distance: 5,
+           forceHelperSize: true,
+           forcePlaceholderSize: true,
+           helper: "clone",
+           items: 'tr.has_original',
+           opacity: 0.7,
+           placeholder: "sortable-placeholder",
+           deactivate: function(ev, ui) {
+                    console.info("deactivate");
+                    $('td.field-ordering input').each(function(i, e) {
+                        e = $(e);
+                        var row = e.parents('tr');
+                        if(row.hasClass('has_original')) {
+                            e.val(i);
+                        }
+
+                        row.removeClass('row1 row2').addClass('row' + ((i%2) ? '2' : '1'));
+                    });
+                }
+        });
 
         /* Set up drag target */
         var sel = '.field-mediafile:visible';
@@ -122,7 +160,7 @@ function dropOnto(ev) {
             )
             .delegate(sel, 'dragleave', dragLeave);
     });
-})(django.jQuery);
+})($);
 
 //]]>
 </script>
