@@ -1,6 +1,7 @@
 {% extends "admin/change_form.html" %}
+{% load spurl %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrastyle %}{{ block.super }}
 <style type="text/css">
 .field-mediafile-with-image-wrapper {
     border-right: 1px solid #ccc;
@@ -16,8 +17,72 @@
 .field-mediafile-with-image-wrapper .image-preview {
     display: block;
     padding-top: 4px;
-    width: 90%;
+    cursor: drop;
 }
 
+.drag-over {
+  background-color: yellow;
+}
+
+/* Remove annoying header line with __unicode__ of inline element */
+td.original p {
+    display: none;
+}
+
+.inline-group .tabular tr.has_original td {
+    padding-top: 3px;
+}
+/* until here */
+
 </style>
+{% endblock extrastyle %}
+
+{% block extrahead %}
+{{ block.super }}
+<!-- ---------------------------------------------- -->
+<script type="text/javascript">
+//<![CDATA[
+
+function dropOnto(ev) {
+    var element = $(ev.target).parent();
+    var link    = ev.originalEvent.dataTransfer.getData("URL");
+
+    ev.preventDefault();
+
+    if(link && link.length > 0) {
+        $.getJSON("{% url "admin:mediagallery-reverse-url" %}",
+            { url: link },
+            function(data) {
+                if(data.status == 200) {
+                    /* Is a "new item" formset element? */
+                    if(!element.find('strong').length) {
+                        /* Add structure so it looks like the others */
+                        element.wrapInner('<div class="field-mediafile-with-image-wrapper" />');
+                        element.find('a.related-lookup').after(
+                        '<strong></strong><img class="image-preview">');
+                    }
+                    element.find('input.vForeignKeyRawIdAdminField').removeClass('drag-over').val(data.mediafile_id);
+                    element.find('strong').text(data.mediafile_caption);
+                    element.find('img.image-preview').attr('src', data.mediafile_url);
+                }
+        });
+    }
+}
+
+(function($){
+    $(function() {
+        $('fieldset.module').delegate('.field-mediafile input.vForeignKeyRawIdAdminField:visible', 'drop', dropOnto);
+        $('fieldset.module').delegate('.field-mediafile input.vForeignKeyRawIdAdminField:visible', 'dragover', function(ev) { ev.preventDefault(); $(this).addClass('drag-over');
+
+    });
+        $('fieldset.module').delegate('.field-mediafile input.vForeignKeyRawIdAdminField:visible', 'dragleave', function(ev) { ev.preventDefault(); $(this).removeClass('drag-over'); });
+
+    });
+})(django.jQuery);
+
+// var $t = $('textarea');
+
+//]]>
+</script>
+
 {% endblock extrahead %}
