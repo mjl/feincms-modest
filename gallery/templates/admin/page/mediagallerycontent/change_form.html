@@ -77,7 +77,7 @@ function dragLeave(ev) {
 }
 
 function dropOnto(ev) {
-    var element = $(ev.target).parent();
+    var element = $(ev.target).parents('tr');
     var link    = ev.originalEvent.dataTransfer.getData("URL");
 
     ev.stopPropagation();
@@ -90,14 +90,14 @@ function dropOnto(ev) {
             function(data) {
                 if(data.status == 200) {
                     /* Is a "new item" formset element? */
-                    if(!element.find('strong').length) {
+                    if(!element.find('.field-mediafile strong').length) {
                         /* Add structure so it looks like the others */
-                        element.find('a.related-lookup').after(
+                        element.find('.field-mediafile a.related-lookup').after(
                         '<strong></strong><img class="image-preview">');
                     }
-                    element.find('input.vForeignKeyRawIdAdminField').removeClass('drag-over').val(data.mediafile_id);
-                    element.find('strong').text(data.mediafile_caption);
-                    element.find('img.image-preview').attr('src', data.mediafile_url);
+                    element.find('.field-mediafile input.vForeignKeyRawIdAdminField').removeClass('drag-over').val(data.mediafile_id);
+                    element.find('.field-mediafile strong').text(data.mediafile_caption);
+                    element.find('.field-mediafile img.image-preview').attr('src', data.mediafile_url);
                 }
         });
     }
@@ -126,10 +126,9 @@ function dropOnto(ev) {
            forcePlaceholderSize: true,
            helper: "clone",
            items: 'tr.has_original',
-           opacity: 0.7,
+           opacity: 0.8,
            placeholder: "sortable-placeholder",
            deactivate: function(ev, ui) {
-                    console.info("deactivate");
                     $('td.field-ordering input').each(function(i, e) {
                         e = $(e);
                         var row = e.parents('tr');
