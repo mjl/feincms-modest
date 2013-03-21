@@ -3,25 +3,39 @@
 
 {% block extrastyle %}{{ block.super }}
 <style type="text/css">
-.field-mediafile-with-image-wrapper {
-    border-right: 1px solid #ccc;
+
+td.field-mediafile {
+    border-right: 1px solid #ddd;
 }
 
-.field-mediafile-with-image-wrapper strong {
+.field-mediafile strong, .field-related_page strong {
     display: block;
     padding-top: 4px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #ddd;
     text-align: center
 }
 
-.field-mediafile-with-image-wrapper .image-preview {
+.field-mediafile .image-preview {
     display: block;
     padding-top: 4px;
-    cursor: drop;
 }
 
 .drag-over {
-  background-color: yellow;
+    outline: 2px dotted #68e;
+    background-color: yellow;
+}
+
+td.field-mediafile {
+    width: 200px;
+}
+
+td.field-title input {
+    display: block;
+}
+
+.vLargeTextField, .vXMLLargeTextField {
+    width: 32em;
+    height: 8em;
 }
 
 /* Remove annoying header line with __unicode__ of inline element */
@@ -43,13 +57,22 @@ td.original p {
 <script type="text/javascript">
 //<![CDATA[
 
+function dragLeave(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    $(this).removeClass('drag-over');
+    return false;
+}
+
 function dropOnto(ev) {
     var element = $(ev.target).parent();
     var link    = ev.originalEvent.dataTransfer.getData("URL");
 
+    ev.stopPropagation();
     ev.preventDefault();
+    $(this).removeClass('drag-over');
 
-    if(link && link.length > 0) {
+    if(link && link.search("://{{ request.META.HTTP_HOST }}/") >= 0) {
         $.getJSON("{% url "admin:mediagallery-reverse-url" %}",
             { url: link },
             function(data) {
@@ -57,7 +80,6 @@ function dropOnto(ev) {
                     /* Is a "new item" formset element? */
                     if(!element.find('strong').length) {
                         /* Add structure so it looks like the others */
-                        element.wrapInner('<div class="field-mediafile-with-image-wrapper" />');
                         element.find('a.related-lookup').after(
                         '<strong></strong><img class="image-preview">');
                     }
@@ -67,20 +89,40 @@ function dropOnto(ev) {
                 }
         });
     }
+
+    return dragLeave(ev);
 }
 
 (function($){
     $(function() {
-        $('fieldset.module').delegate('.field-mediafile input.vForeignKeyRawIdAdminField:visible', 'drop', dropOnto);
-        $('fieldset.module').delegate('.field-mediafile input.vForeignKeyRawIdAdminField:visible', 'dragover', function(ev) { ev.preventDefault(); $(this).addClass('drag-over');
 
-    });
-        $('fieldset.module').delegate('.field-mediafile input.vForeignKeyRawIdAdminField:visible', 'dragleave', function(ev) { ev.preventDefault(); $(this).removeClass('drag-over'); });
+        /* Merge title/text columns */
+        $('tr[id^=item_set-]').each(function(i, e) {
+            e = $(e);
+            e.find('td.field-title').append(e.find('td.field-text').detach().html());
+        });
+        $('th:contains(Text)').remove();
+        $('th:contains(Title)').append('/ Text');
 
+        /* Set up drag target */
+        var sel = '.field-mediafile:visible';
+        $('fieldset.module')
+            .delegate(sel, 'drop', dropOnto)
+            .delegate(sel, 'dragenter dragover',
+                    function(ev) {
+                        try {
+                            if(ev.originalEvent.dataTransfer.getData("URL")) {
+                                ev.originalEvent.dataTransfer.dropEffect = 'copy';
+                                $(this).addClass('drag-over');
+                            }
+                        } catch(err) {
+                        }
+                        return dragLeave(ev);
+                    }
+            )
+            .delegate(sel, 'dragleave', dragLeave);
     });
 })(django.jQuery);
-
-// var $t = $('textarea');
 
 //]]>
 </script>

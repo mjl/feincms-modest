@@ -18,6 +18,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from feincms.module.medialibrary.models import MediaFile
+from feincms.module.page.models import Page
 
 from .admin import MediaGalleryAdminBase, MediaGalleryContentFilesAdminInlineBase
 
@@ -37,6 +38,20 @@ class MediaGalleryContent(models.Model):
     title   = models.CharField(_('title'), max_length=80, blank=True)
     options = models.CharField(_('options'), max_length=80, blank=True)
 
+    order = models.CharField(_('order'), max_length=1, blank=True,
+                    choices=(('', _('ascending')),
+                             ('-', _('descending')),
+                             ('?', _('random')))
+            )
+    limit = models.SmallIntegerField(_('limit'), blank=True, null=True,
+                    help_text=_('show how many items, leave empty for no limit')
+            )
+    click = models.CharField(_('on click'), max_length=1, blank=True,
+                    choices=(('', _('do nothing')),
+                             ('R', _('redirect to page')),
+                             ('Z', _('zoom image')))
+            )
+
     @classmethod
     def initialize_type(cls, LAYOUT_CHOICES=None):
         if LAYOUT_CHOICES is None:
@@ -55,8 +70,14 @@ class MediaGalleryContent(models.Model):
                 verbose_name_plural = _('media gallery content files')
                 ordering            = ('ordering',)
 
-            gallery   = models.ForeignKey(cls, related_name="item_set")
-            mediafile = models.ForeignKey(MediaFile, related_name="+")
+            gallery   = models.ForeignKey(cls, related_name="item_set",
+                                on_delete=models.CASCADE)
+            mediafile = models.ForeignKey(MediaFile, related_name="+",
+                                on_delete=models.CASCADE)
+            related_page = models.ForeignKey(Page, verbose_name=_('related page'),
+                                blank=True, null=True,
+                                related_name="+", on_delete=models.SET_NULL)
+
             ordering  = models.IntegerField(default=0)
             title     = models.CharField(_('title'), blank=True, max_length=80)
             text      = models.TextField(_('text'), blank=True)
@@ -97,6 +118,14 @@ class MediaGalleryContent(models.Model):
         return self.title
 
     def items(self):
+        qs = self.item_set
+
+        m = { '-': '-ordering', '?': '?' }
+        qs = qs.order_by(m.get(self.order, 'ordering'))
+
+        if self.limit:
+            qs = qs[:self.limit]
+
         return self.item_set.all()
 
     def render(self, request, **kwargs):

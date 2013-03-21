@@ -39,7 +39,7 @@ class MediaFileWidget(ForeignKeyRawIdWidget):
             image = admin_thumbnail(mf, dimensions="150x100")
             if image:
                 image = u'<img class="image-preview" src="%(url)s" />' % {'url': image}
-                html = "<div class=\"field-mediafile-with-image-wrapper\">" + html + image + "</div>"
+                html = html + image
                 return mark_safe(html)
 
         return html
@@ -47,7 +47,8 @@ class MediaFileWidget(ForeignKeyRawIdWidget):
 # ------------------------------------------------------------------------
 class MediaGalleryContentFilesAdminInlineBase(admin.TabularInline):
     ordering = ('ordering',)
-    raw_id_fields = ('mediafile',)
+    raw_id_fields = ('mediafile', 'related_page')
+    fields = ('mediafile', 'title', 'text', 'related_page', 'ordering')
     extra = 1
 
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -97,9 +98,9 @@ def media_reverse_url(request):
         print "@@", e
 
     r = HttpResponse(simplejson.dumps(out), content_type='application/json')
-    print r.content
     return r
 
+# ------------------------------------------------------------------------
 class MediaGalleryAdminBase(admin.ModelAdmin):
     exclude = ('ordering', 'region', 'parent')
 
