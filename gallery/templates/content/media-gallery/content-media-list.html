@@ -1,0 +1,85 @@
+{% load thumbnail %}
+
+<style type="text/css">
+
+.mediagallery-gallery ul {
+    list-style: none !important;
+}
+
+.mediagallery-gallery ul li {
+    padding-top: 1em;
+    clear: both;
+}
+
+.mediagallery-icon a img {
+    margin: 0 0 0 0 !important;
+}
+
+.mediagallery-icon {
+    width: 64px;
+    height: 64px;
+    float: left;
+    vertical-align: top;
+}
+
+.mediagallery-text {
+    margin-left: 1em;
+    float: left;
+    vertical-align: top;
+}
+
+.mediagallery-text small {
+    font-size: 67%;
+}
+
+.mediagallery-gallery h1 {
+    font-size: 120% !important;
+}
+
+.mediagallery-gallery h2 {
+    font-size: 100% !important;
+}
+
+.mediagallery-gallery .mediagallery-image-thumbnail {
+    padding: 4px 4px 4px 4px !important;
+}
+
+</style>
+
+<div class="mediagallery-gallery">
+<h1>{{ gallery.title }}</h1>
+
+<ul>
+{% for galleryitem in gallery.items %}
+    <li>
+        {% spaceless %}
+        <div class="mediagallery-icon">
+            <a href="{{ galleryitem.mediafile.get_absolute_url }}">
+            {% if galleryitem.mediafile.type == 'pdf' or galleryitem.mediafile.type == 'zip' %}
+                <img src="{{ STATIC_URL }}media-gallery/{{ galleryitem.mediafile.type }}.png" width=64 height=64 alt="[{{ galleryitem.mediafile.type }}]">
+            {% else %}
+            {% if galleryitem.mediafile.type == 'image' %}
+              {% thumbnail galleryitem.mediafile.file "56x56" as thumb %}
+                <img src="{{ thumb.url }}" width=56 height=56 alt="[image]"
+                 class="mediagallery-image-thumbnail">
+              {% endthumbnail %}
+            {% else %}
+                <img src="{{ STATIC_URL }}media-gallery/default.png" width=64 height=64 alt="[file]">
+            {% endif %}
+            {% endif %}
+            </a>
+        </div>
+        {% endspaceless %}
+        <div class="mediagallery-text">
+            <h2>{{ galleryitem.caption }}</h2>
+            {{ galleryitem.description }}{% if galleryitem.description %}<br>{% endif %}
+            <small>{{ galleryitem.mediafile.file_size }} bytes</small>
+        </div>
+    </li>
+{% endfor %}
+</ul>
+
+</div>
+<!-- Nice icons at
+    http://www.softicons.com/free-icons/system-icons/lozengue-filetype-icons-by-gurato
+-->
