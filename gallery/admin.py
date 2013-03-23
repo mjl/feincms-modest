@@ -9,16 +9,9 @@
 
 from __future__ import absolute_import
 
-from urlparse import urlparse
-
-from django.conf import settings
 from django.conf.urls import patterns, url
 from django.contrib import admin
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseNotFound
-from django.utils import simplejson
 from django.utils.safestring import mark_safe
 
 from feincms.module.medialibrary.models import MediaFile
@@ -61,53 +54,15 @@ class MediaGalleryContentFilesAdminInlineBase(admin.TabularInline):
 
         return formfield
 
-
-# ------------------------------------------------------------------------
-@staff_member_required
-def media_reverse_url(request):
-    if not request.is_ajax():
-        return HttpResponseNotFound()
-
-    out = { 'status': 404 }
-
-    try:
-        mediafile = None
-        u = request.REQUEST.get('url')
-        p = urlparse(u)
-
-        if p.netloc == request.META.get('HTTP_HOST', None):
-            mediaurl = urlparse(settings.MEDIA_URL)
-            mediachange_url = reverse("admin:medialibrary_mediafile_change", args=(0,)).replace('0/', '')
-            if p.path.startswith(mediachange_url):
-                rest = p.path[len(mediachange_url):-1]
-                mediafile = MediaFile.objects.get(pk=int(rest))
-            elif p.path.startswith(mediaurl.path):
-                path = p.path[len(mediaurl.path):]
-                mediafile = MediaFile.objects.get(file=path)
-
-        if mediafile is not None:
-            image = admin_thumbnail(mediafile, dimensions="150x100")
-
-            out['mediafile_id']      = mediafile.id
-            out['mediafile_type']    = mediafile.type
-            out['mediafile_caption'] = unicode(mediafile)
-            out['mediafile_url']     = image
-            out['status']            = 200
-
-    except Exception, e:
-        print "@@", e
-
-    r = HttpResponse(simplejson.dumps(out), content_type='application/json')
-    return r
-
 # ------------------------------------------------------------------------
 class MediaGalleryAdminBase(admin.ModelAdmin):
     exclude = ('ordering', 'region', 'parent')
+    drop_acceptor = None
 
     def get_urls(self):
         urls = super(MediaGalleryAdminBase, self).get_urls()
         my_urls = patterns('',
-            url(r'^reverse-url/$', media_reverse_url, name='mediagallery-reverse-url')
+            url(r'^reverse-url/$', self.drop_acceptor, name='mediagallery-reverse-url')
         )
         return my_urls + urls
 

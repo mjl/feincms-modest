@@ -10,15 +10,24 @@
 from __future__ import absolute_import
 
 import logging
+from urlparse import urlparse
 
+from django import forms
+from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.urlresolvers import reverse
 from django.db import models
+from django.http import HttpResponse, HttpResponseNotFound
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils import simplejson
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 
 from feincms.module.medialibrary.models import MediaFile
 from feincms.module.page.models import Page
+from feincms.module.medialibrary.thumbnail import admin_thumbnail
 
 from .admin import MediaGalleryAdminBase, MediaGalleryContentFilesAdminInlineBase
 
@@ -53,7 +62,9 @@ class MediaGalleryContent(models.Model):
             )
 
     @classmethod
-    def initialize_type(cls, LAYOUT_CHOICES=None):
+    def initialize_type(cls,
+                        LAYOUT_CHOICES=None,
+                        DROP_ACCEPTOR=None):
         if LAYOUT_CHOICES is None:
             LAYOUT_CHOICES = ( ('default', _('default gallery')), )
 
@@ -105,11 +116,15 @@ class MediaGalleryContent(models.Model):
             def file(self):
                 return self.mediafile.file
 
+        if DROP_ACCEPTOR is None:
+            DROP_ACCEPTOR = MediaGalleryDropAcceptor()
+
         class MediaGalleryContentFilesAdminInline(MediaGalleryContentFilesAdminInlineBase):
             model = MediaGalleryContentFiles
 
         class MediaGalleryAdmin(MediaGalleryAdminBase):
             inlines = (MediaGalleryContentFilesAdminInline,)
+        MediaGalleryAdmin.drop_acceptor = DROP_ACCEPTOR
 
         admin.site.register(MediaGalleryContentFiles) # REMOVE THIS LATER
         admin.site.register(cls, MediaGalleryAdmin)
@@ -138,4 +153,86 @@ class MediaGalleryContent(models.Model):
             )
 
 # ------------------------------------------------------------------------
+class MediaGalleryDropAcceptor(object):
+    def __init__(self, *args, **kwargs):
+        self.mediaurl = urlparse(settings.MEDIA_URL)
+        self.mediachange_url = None # deferred until init is done
+
+    def reverse_url(self, request, url, ctx):
+        """
+        This takes what url the user dropped onto the drop zone and
+        tries to intuit what she meant. Currently implements dropping
+        a MediaLibrary item (see below, `mediafile_reverse_url`), but
+        could be extended to handle Pages or Products from a catalogue.
+
+        This method takes the url and fills out the context dictionary
+        as it seems fit.
+
+        Override to this to customize.
+        """
+        return self.mediafile_reverse_url(url, ctx)
+
+    @method_decorator(staff_member_required)
+    def __call__(self, request):
+        if not request.is_ajax():
+            return HttpResponseNotFound()
+
+        # Delayed init, url dict is not ready in __init__
+        if self.mediachange_url is None:
+            self.mediachange_url = reverse("admin:medialibrary_mediafile_change", args=(0,)).replace('0/', '')
+
+        out = { 'status': 404 }
+        inurl = request.REQUEST.get('url')
+        try:
+            url = urlparse(inurl)
+            # Security check: only allow urls that come from this site
+            if self.is_valid_drop_url(request, url):
+                self.reverse_url(request, url, out)
+        except Exception, e:
+            logger.exception("%s raised exception for url \"%s\": %s", self.__class__.__name__, inurl, e)
+            out['status'] = 500
+
+        return self.build_response(out)
+
+    def build_response(self, ctx):
+        r = HttpResponse(simplejson.dumps(ctx), content_type='application/json')
+        r.status_code = ctx['status']
+        return r
+
+    def is_valid_drop_url(self, request, url):
+        return url.netloc == request.META.get('HTTP_HOST', None)
+
+    def mediafile_reverse_url(self, url, ctx):
+        """
+        Tries to intuit what the user dropped onto us. This might be
+        a link to a MediaFile in case she dragged the "Title" column
+        over, or it might be a link to a file in the media library
+        if she dragged the image itself.
+        """
+        mediafile = None
+
+        try:
+            if url.path.startswith(self.mediachange_url):
+                # Dropped a MediaFile url
+                rest = url.path[len(self.mediachange_url):-1]
+                mediafile = MediaFile.objects.get(pk=int(rest))
+            elif url.path.startswith(self.mediaurl.path):
+                # Dropped an image url (from media library)
+                file_path = url.path[len(self.mediaurl.path):]
+                mediafile = MediaFile.objects.get(file=file_path)
+        except MediaFile.DoesNotExist:
+            pass
+        else:
+            if mediafile is not None:
+                logger.debug("%s converted \"%s\" into %s(pk=%d)",
+                             self.__class__.__name__, url.path, mediafile.__class__.__name__, mediafile.pk)
+
+                image = admin_thumbnail(mediafile, dimensions="150x100")
+
+                ctx['mediafile_id']      = mediafile.id
+                ctx['mediafile_type']    = mediafile.type
+                ctx['mediafile_caption'] = unicode(mediafile)
+                ctx['mediafile_url']     = image
+                ctx['status']            = 200
+
 # ------------------------------------------------------------------------
