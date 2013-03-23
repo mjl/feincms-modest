@@ -55,14 +55,14 @@
         {% spaceless %}
         <div class="mediagallery-icon">
             <a href="{{ galleryitem.mediafile.get_absolute_url }}">
-            {% if galleryitem.mediafile.type == 'pdf' or galleryitem.mediafile.type == 'zip' %}
-                <img src="{{ STATIC_URL }}media-gallery/{{ galleryitem.mediafile.type }}.png" width=64 height=64 alt="[{{ galleryitem.mediafile.type }}]">
-            {% else %}
             {% if galleryitem.mediafile.type == 'image' %}
               {% thumbnail galleryitem.mediafile.file "56x56" as thumb %}
                 <img src="{{ thumb.url }}" width=56 height=56 alt="[image]"
                  class="mediagallery-image-thumbnail">
               {% endthumbnail %}
+            {% else %}
+            {% if galleryitem.mediafile.type in have_icon_files %}
+                <img src="{{ STATIC_URL }}media-gallery/{{ galleryitem.mediafile.type }}.png" width=64 height=64 alt="[{{ galleryitem.mediafile.type }}]">
             {% else %}
                 <img src="{{ STATIC_URL }}media-gallery/default.png" width=64 height=64 alt="[file]">
             {% endif %}
