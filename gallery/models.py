@@ -64,7 +64,8 @@ class MediaGalleryContent(models.Model):
     @classmethod
     def initialize_type(cls,
                         LAYOUT_CHOICES=None,
-                        DROP_ACCEPTOR=None):
+                        DROP_ACCEPTOR=None,
+                        EXTRA_CONTEXT=None):
         if LAYOUT_CHOICES is None:
             LAYOUT_CHOICES = ( ('default', _('default gallery')), )
 
@@ -72,6 +73,7 @@ class MediaGalleryContent(models.Model):
                          choices=LAYOUT_CHOICES, max_length=15,
                          default=LAYOUT_CHOICES[0][0],)
         )
+        cls.extra_context = EXTRA_CONTEXT
 
         class MediaGalleryContentFiles(models.Model):
             class Meta:
@@ -126,7 +128,6 @@ class MediaGalleryContent(models.Model):
             inlines = (MediaGalleryContentFilesAdminInline,)
         MediaGalleryAdmin.drop_acceptor = DROP_ACCEPTOR
 
-        admin.site.register(MediaGalleryContentFiles) # REMOVE THIS LATER
         admin.site.register(cls, MediaGalleryAdmin)
 
     def __unicode__(self):
@@ -144,13 +145,20 @@ class MediaGalleryContent(models.Model):
         return self.item_set.all()
 
     def render(self, request, **kwargs):
+        ctx = { 'have_icon_files': ('pdf', 'zip') }
+
+        if self.extra_context is not None:
+            if '__call__' in dir(self.extra_context):
+                ctx = self.extra_context()
+            else:
+                ctx = dict(self.extra_context())
+
+        ctx.update({ 'feincms_page': self.parent, 'object': self, 'gallery': self })
+
         return render_to_string((
                 'content/media-gallery/content-%s.html' % self.layout,
                 'content/media-gallery/content.html',
-            ),
-            { 'feincms_page': self.parent, 'object': self, 'gallery': self, },
-            context_instance=RequestContext(request)
-            )
+                ), ctx, context_instance=RequestContext(request))
 
 # ------------------------------------------------------------------------
 class MediaGalleryDropAcceptor(object):
