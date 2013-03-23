@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from gallery import __version__
 
@@ -11,11 +11,12 @@ setup(
     license          = "BSD",
     keywords         = "feincms content type gallery",
 #    url              = "http://github.com/mjl/feincms-media-gallery",
-    packages         = ['gallery'],
+    packages         = find_packages(),
     long_description = open('README.rst').read(),
     test_suite       = "tests",
     zip_safe         = False,
-    package_data     = {'': ['gallery/templates']},
+    include_package_data = True,
+    requires         = ['feincms (>=1.5)'],
     classifiers      = [
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

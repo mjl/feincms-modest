@@ -1,2 +1,4 @@
 include README.rst LICENSE
-recursive-include templates *
+recursive-include gallery/static *
+recursive-include gallery/templates *
+recursive-include docs *
