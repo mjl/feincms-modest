@@ -1,6 +1,5 @@
 Customisation
 =============
-XXX describe implementation own drop acceptor, adding other layouts
 
 .. _label-customisation-templates:
 
@@ -21,8 +20,27 @@ that displays a simple list of media assets for downloading:
    :align: center
 
 
+New Layouts
+~~~~~~~~~~~
 
+To add a new layout, you will have to:
+
+* Create a new template
+  TODO: List of context variables available.
+  TODO: Please see examples
+* Enable that layout in your
+  :ref:`LAYOUT_CHOICES<label-installation-layout-choices>` option
+  when registering the content type.
+
+.. _label-customisation-itemclass:
+
+Using alternative item classes
+------------------------------
+
+.. _label-customisation-acceptor:
 
 Extending drag and drop
 -----------------------
+Drop Acceptor
+-------------
 
