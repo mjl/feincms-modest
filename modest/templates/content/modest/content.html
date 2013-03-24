@@ -1,0 +1,18 @@
+{% load thumbnail %}
+
+<div>
+<h1>Gallery: {{ gallery.title }}</h1>
+
+<ul>
+{% for galleryitem in gallery.items %}
+    <li>
+        {% thumbnail galleryitem.file "200x200" as thumb %}
+            <img src="{{ thumb.url }}" alt="{{ galleryitem.caption }}">
+        {% endthumbnail %}
+        {{ galleryitem.caption }}:
+        {{ galleryitem.description }}
+    </li>
+{% endfor %}
+</ul>
+
+</div>

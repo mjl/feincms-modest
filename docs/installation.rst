@@ -2,12 +2,12 @@ Installation
 ============
 To install this module, simply::
 
-    $ pip install feincms-media-gallery
+    $ pip install feincms-modest
 
-Then add ``'gallery'`` to your ``INSTALLED_APPS``. Finally, install the
+Then add ``'modest'`` to your ``INSTALLED_APPS``. Finally, install the
 content type into your FeinCMS site::
 
-    from gallery.models import MediaGalleryContent
+    from modest.models import MediaGalleryContent
 
     Page.create_content_type(MediaGalleryContent,
                          LAYOUT_CHOICES=(('', 'default'),

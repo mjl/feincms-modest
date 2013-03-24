@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Feincms Media Gallery's documentation!
-=================================================
+Welcome to Feincms Modest's documentation!
+==========================================
 
 This package provides a gallery content type for FeinCMS. It can be used
 to present a collection of other content types. It is very flexible about

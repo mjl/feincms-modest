@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Feincms Media Gallery documentation build configuration file, created by
+# Feincms Modest documentation build configuration file, created by
 # sphinx-quickstart on Sat Mar 23 19:17:18 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Feincms Media Gallery'
+project = u'Feincms Modest'
 copyright = u'2013, Martin J. Laubach'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -164,7 +164,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'FeincmsMediaGallerydoc'
+htmlhelp_basename = 'FeincmsModestdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -183,7 +183,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'FeincmsMediaGallery.tex', u'Feincms Media Gallery Documentation',
+  ('index', 'FeincmsModest.tex', u'Feincms Modest Documentation',
    u'Martin J. Laubach', 'manual'),
 ]
 
@@ -213,7 +213,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'feincmsmediagallery', u'Feincms Media Gallery Documentation',
+    ('index', 'feincmsmodest', u'Feincms Modest Documentation',
      [u'Martin J. Laubach'], 1)
 ]
 
@@ -227,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'FeincmsMediaGallery', u'Feincms Media Gallery Documentation',
-   u'Martin J. Laubach', 'FeincmsMediaGallery', 'One line description of project.',
+  ('index', 'FeincmsModest', u'Feincms Modest Documentation',
+   u'Martin J. Laubach', 'FeincmsModest', 'One line description of project.',
    'Miscellaneous'),
 ]
 

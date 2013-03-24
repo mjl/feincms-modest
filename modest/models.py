@@ -156,8 +156,8 @@ class MediaGalleryContent(models.Model):
         ctx.update({ 'feincms_page': self.parent, 'object': self, 'gallery': self })
 
         return render_to_string((
-                'content/media-gallery/content-%s.html' % self.layout,
-                'content/media-gallery/content.html',
+                '%scontent-%s.html' % (self.template_prefix, self.layout),
+                '%scontent.html' % (self.template_prefix),
                 ), ctx, context_instance=RequestContext(request))
 
 # ------------------------------------------------------------------------

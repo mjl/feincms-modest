@@ -62,9 +62,9 @@
               {% endthumbnail %}
             {% else %}
             {% if galleryitem.mediafile.type in have_icon_files %}
-                <img src="{{ STATIC_URL }}media-gallery/{{ galleryitem.mediafile.type }}.png" width=64 height=64 alt="[{{ galleryitem.mediafile.type }}]">
+                <img src="{{ STATIC_URL }}modest/{{ galleryitem.mediafile.type }}.png" width=64 height=64 alt="[{{ galleryitem.mediafile.type }}]">
             {% else %}
-                <img src="{{ STATIC_URL }}media-gallery/default.png" width=64 height=64 alt="[file]">
+                <img src="{{ STATIC_URL }}modest/default.png" width=64 height=64 alt="[file]">
             {% endif %}
             {% endif %}
             </a>

@@ -3,14 +3,14 @@ from setuptools import setup, find_packages
 from gallery import __version__
 
 setup(
-    name             = "feincms-media-gallery",
+    name             = "feincms-modest",
     version          = __version__,
     author           = "Martin J. Laubach",
-    author_email     = "pypi+feincms-media-gallery@laubach.at",
+    author_email     = "pypi+feincms-modest@laubach.at",
     description      = ("Gallery content type for FeinCMS"),
     license          = "BSD",
     keywords         = "feincms content type gallery",
-#    url              = "http://github.com/mjl/feincms-media-gallery",
+#    url              = "http://github.com/mjl/feincms-modest",
     packages         = find_packages(),
     long_description = open('README.rst').read(),
     test_suite       = "tests",
