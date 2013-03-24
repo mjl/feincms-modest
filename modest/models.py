@@ -12,7 +12,6 @@ from __future__ import absolute_import
 import logging
 from urlparse import urlparse
 
-from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
@@ -41,6 +40,8 @@ class MediaGalleryContent(models.Model):
         abstract            = True
         verbose_name        = _('media gallery')
         verbose_name_plural = _('media galleries')
+
+    template_prefix = 'content/modest/'
 
     LAYOUT_CHOICES = ( ('', _('default list')), )
 
@@ -142,13 +143,13 @@ class MediaGalleryContent(models.Model):
         if self.limit:
             qs = qs[:self.limit]
 
-        return self.item_set.all()
+        return qs.all()
 
     def render(self, request, **kwargs):
         ctx = { 'have_icon_files': ('pdf', 'zip') }
 
         if self.extra_context is not None:
-            if '__call__' in dir(self.extra_context):
+            if callable(self.extra_context):
                 ctx = self.extra_context()
             else:
                 ctx = dict(self.extra_context())
