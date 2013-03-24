@@ -25,7 +25,6 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 
 from feincms.module.medialibrary.models import MediaFile
-from feincms.module.page.models import Page
 from feincms.module.medialibrary.thumbnail import admin_thumbnail
 
 from .admin import MediaGalleryAdminBase, MediaGalleryContentFilesAdminInlineBase
@@ -44,29 +43,31 @@ class MediaGalleryContent(models.Model):
     template_prefix = 'content/modest/'
 
     LAYOUT_CHOICES = ( ('', _('default list')), )
+    ORDER_CHOICES = (('', _('ascending')),
+                     ('-', _('descending')),
+                     ('?', _('random')))
+    CLICK_CHOICES = (('', _('do nothing')),
+                     ('R', _('redirect to page')),
+                     ('Z', _('zoom image')))
 
+    # ----- django fields ----- #
     title   = models.CharField(_('title'), max_length=80, blank=True)
     options = models.CharField(_('options'), max_length=80, blank=True)
 
     order = models.CharField(_('order'), max_length=1, blank=True,
-                    choices=(('', _('ascending')),
-                             ('-', _('descending')),
-                             ('?', _('random')))
-            )
+                    choices=ORDER_CHOICES)
     limit = models.SmallIntegerField(_('limit'), blank=True, null=True,
                     help_text=_('show how many items, leave empty for no limit')
             )
     click = models.CharField(_('on click'), max_length=1, blank=True,
-                    choices=(('', _('do nothing')),
-                             ('R', _('redirect to page')),
-                             ('Z', _('zoom image')))
-            )
+                    choices=CLICK_CHOICES)
 
     @classmethod
     def initialize_type(cls,
                         LAYOUT_CHOICES=None,
                         DROP_ACCEPTOR=None,
-                        EXTRA_CONTEXT=None):
+                        EXTRA_CONTEXT=None,
+                        ITEM_CLASS=MediaFile):
         if LAYOUT_CHOICES is None:
             LAYOUT_CHOICES = ( ('default', _('default gallery')), )
 
@@ -86,9 +87,10 @@ class MediaGalleryContent(models.Model):
 
             gallery   = models.ForeignKey(cls, related_name="item_set",
                                 on_delete=models.CASCADE)
-            mediafile = models.ForeignKey(MediaFile, related_name="+",
+            mediafile = models.ForeignKey(ITEM_CLASS, related_name="+",
                                 on_delete=models.CASCADE)
-            related_page = models.ForeignKey(Page, verbose_name=_('related page'),
+            related_page = models.ForeignKey(cls._feincms_content_class,
+                                verbose_name=_('related page'),
                                 blank=True, null=True,
                                 related_name="+", on_delete=models.SET_NULL)
 
