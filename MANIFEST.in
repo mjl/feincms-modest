@@ -1,4 +1,5 @@
 include README.rst LICENSE
-recursive-include gallery/static *
-recursive-include gallery/templates *
-recursive-include docs *
+prune docs/_build
+global-exclude .DS_Store
+recursive-include modest/static *
+recursive-include modest/templates *

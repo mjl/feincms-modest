@@ -1,6 +1,10 @@
 from setuptools import setup, find_packages
 
-from gallery import __version__
+from modest import __version__
+
+print "---"
+print find_packages()
+print "---"
 
 setup(
     name             = "feincms-modest",
