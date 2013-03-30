@@ -1,5 +1,16 @@
 {% extends "admin/change_form.html" %}
-{% load spurl %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items  %}
+{% if original.id %}
+<li>
+    <a href="{% url original.parent|admin_urlname:'change' original.parent_id %}">{% trans "Back to containing page" %}</a>
+</li>
+{% endif %}
+
+{{ block.super }}
+{% endblock %}
+
 
 {% block extrastyle %}{{ block.super }}
 <style type="text/css">

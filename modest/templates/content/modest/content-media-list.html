@@ -2,6 +2,10 @@
 
 <style type="text/css">
 
+.mediagallery-gallery {
+    margin-top: 1.5em;
+}
+
 .mediagallery-gallery ul {
     list-style: none !important;
 }
@@ -75,6 +79,7 @@
             {{ galleryitem.description }}{% if galleryitem.description %}<br>{% endif %}
             <small>{{ galleryitem.mediafile.file_size }} bytes</small>
         </div>
+        <div style="clear: both;" />
     </li>
 {% endfor %}
 </ul>

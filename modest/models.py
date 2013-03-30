@@ -24,6 +24,7 @@ from django.utils import simplejson
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 
+from feincms.admin.item_editor import FeinCMSInline
 from feincms.module.medialibrary.models import MediaFile
 from feincms.module.medialibrary.thumbnail import admin_thumbnail
 
@@ -34,6 +35,9 @@ app_label = 'mediagallery'
 logger = logging.getLogger(app_label)
 
 # ------------------------------------------------------------------------
+class MediaGalleryContentAdminInline(FeinCMSInline):
+    template = "admin/modest_content_inline.html"
+
 class MediaGalleryContent(models.Model):
     class Meta:
         abstract            = True
@@ -62,6 +66,16 @@ class MediaGalleryContent(models.Model):
     click = models.CharField(_('on click'), max_length=1, blank=True,
                     choices=CLICK_CHOICES)
 
+    # Implement admin_urlname templatetag protocol
+    @property
+    def app_label(self):
+        return self._meta.app_label
+
+    # Implement admin_urlname templatetag protocol
+    @property
+    def module_name(self):
+        return self.__class__.__name__.lower()
+
     @classmethod
     def initialize_type(cls,
                         LAYOUT_CHOICES=None,
@@ -76,6 +90,8 @@ class MediaGalleryContent(models.Model):
                          default=LAYOUT_CHOICES[0][0],)
         )
         cls.extra_context = EXTRA_CONTEXT
+
+        cls.feincms_item_editor_inline = MediaGalleryContentAdminInline
 
         class MediaGalleryContentFiles(models.Model):
             class Meta:
@@ -129,6 +145,7 @@ class MediaGalleryContent(models.Model):
 
         class MediaGalleryAdmin(MediaGalleryAdminBase):
             inlines = (MediaGalleryContentFilesAdminInline,)
+
         MediaGalleryAdmin.drop_acceptor = DROP_ACCEPTOR
 
         admin.site.register(cls, MediaGalleryAdmin)
@@ -148,6 +165,7 @@ class MediaGalleryContent(models.Model):
         return qs.all()
 
     def render(self, request, **kwargs):
+        print "rendering", self
         ctx = { 'have_icon_files': ('pdf', 'zip') }
 
         if self.extra_context is not None:

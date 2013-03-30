@@ -56,8 +56,15 @@ class MediaGalleryContentFilesAdminInlineBase(admin.TabularInline):
 
 # ------------------------------------------------------------------------
 class MediaGalleryAdminBase(admin.ModelAdmin):
+    list_display = ('title', 'page')
     exclude = ('ordering', 'region', 'parent')
     drop_acceptor = None
+
+    def page(self, object):
+        return object.parent
+
+    def has_add_permission(self, request):
+        return False
 
     def get_urls(self):
         urls = super(MediaGalleryAdminBase, self).get_urls()
