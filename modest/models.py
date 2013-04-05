@@ -165,7 +165,6 @@ class MediaGalleryContent(models.Model):
         return qs.all()
 
     def render(self, request, **kwargs):
-        print "rendering", self
         ctx = { 'have_icon_files': ('pdf', 'zip') }
 
         if self.extra_context is not None:
