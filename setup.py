@@ -2,10 +2,6 @@ from setuptools import setup, find_packages
 
 from modest import __version__
 
-print "---"
-print find_packages()
-print "---"
-
 setup(
     name             = "feincms-modest",
     version          = __version__,
