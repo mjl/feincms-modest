@@ -4,7 +4,7 @@
 {% block object-tools-items  %}
 {% if original.id %}
 <li>
-    <a href="{% url original.parent|admin_urlname:'change' original.parent_id %}">{% trans "Back to containing page" %}</a>
+    <a href="{% url original.parent_opts|admin_urlname:'change' original.parent_id %}">{% trans "Back to containing page" %}</a>
 </li>
 {% endif %}
 
@@ -74,8 +74,8 @@ td.original p {
 {% block extrahead %}
 {{ block.super }}
 <!-- ---------------------------------------------- -->
-<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
 <script type="text/javascript">
 //<![CDATA[

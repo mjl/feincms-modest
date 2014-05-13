@@ -4,7 +4,7 @@
 {% block before-inline-fieldsets %}
 {% if inline_admin_form.original %}
 <div class="object-tools" style="position: absolute; right: 30px; top: 4px">
-    <a href="{% url inline_admin_form.original|admin_urlname:'change' inline_admin_form.original.id %}" style="background-image: none;">{% trans "Edit gallery content" %}</a>
+    <a href="{% url inline_admin_form.original.opts|admin_urlname:'change' inline_admin_form.original.id %}" style="background-image: none;">{% trans "Edit gallery content" %}</a>
 </div>
 {% endif %}
 {% endblock %}

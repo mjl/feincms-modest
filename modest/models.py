@@ -180,6 +180,13 @@ class MediaGalleryContent(models.Model):
                 '%scontent.html' % (self.template_prefix),
                 ), ctx, context_instance=RequestContext(request))
 
+    # Accessor for admin_url templatetag
+    def parent_opts(self):
+        return self.parent._meta
+
+    def opts(self):
+        return self._meta
+
 # ------------------------------------------------------------------------
 class MediaGalleryDropAcceptor(object):
     def __init__(self, *args, **kwargs):
