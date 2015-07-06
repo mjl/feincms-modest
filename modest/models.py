@@ -82,6 +82,7 @@ class MediaGalleryContent(models.Model):
                         LAYOUT_CHOICES=None,
                         DROP_ACCEPTOR=None,
                         EXTRA_CONTEXT=None,
+                        MEDIA_DEFS=None,
                         ITEM_CLASS=MediaFile):
         if LAYOUT_CHOICES is None:
             LAYOUT_CHOICES = (('default', _('default gallery')), )
@@ -91,6 +92,7 @@ class MediaGalleryContent(models.Model):
                          default=LAYOUT_CHOICES[0][0],)
         )
         cls.extra_context = EXTRA_CONTEXT
+        cls.media_defs = MEDIA_DEFS
 
         cls.feincms_item_editor_inline = MediaGalleryContentAdminInline
 
@@ -151,6 +153,10 @@ class MediaGalleryContent(models.Model):
         MediaGalleryAdmin.drop_acceptor = DROP_ACCEPTOR
 
         admin.site.register(cls, MediaGalleryAdmin)
+
+    @property
+    def media(self):
+        return self.media_defs.get(self.layout, None)
 
     def __unicode__(self):
         return self.title
