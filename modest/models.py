@@ -39,14 +39,15 @@ class MediaGalleryContentAdminInline(FeinCMSInline):
     template = "admin/modest_content_inline.html"
 
 class MediaGalleryContent(models.Model):
+
     class Meta:
-        abstract            = True
-        verbose_name        = _('media gallery')
+        abstract = True
+        verbose_name = _('media gallery')
         verbose_name_plural = _('media galleries')
 
     template_prefix = 'content/modest/'
 
-    LAYOUT_CHOICES = ( ('', _('default list')), )
+    LAYOUT_CHOICES = (('', _('default list')), )
     ORDER_CHOICES = (('', _('ascending')),
                      ('-', _('descending')),
                      ('?', _('random')))
@@ -55,14 +56,14 @@ class MediaGalleryContent(models.Model):
                      ('Z', _('zoom image')))
 
     # ----- django fields ----- #
-    title   = models.CharField(_('title'), max_length=80, blank=True)
+    title = models.CharField(_('title'), max_length=80, blank=True)
     options = models.CharField(_('options'), max_length=80, blank=True)
 
     order = models.CharField(_('order'), max_length=1, blank=True,
                     choices=ORDER_CHOICES)
     limit = models.SmallIntegerField(_('limit'), blank=True, null=True,
                     help_text=_('show how many items, leave empty for no limit')
-            )
+    )
     click = models.CharField(_('on click'), max_length=1, blank=True,
                     choices=CLICK_CHOICES)
 
@@ -81,27 +82,30 @@ class MediaGalleryContent(models.Model):
                         LAYOUT_CHOICES=None,
                         DROP_ACCEPTOR=None,
                         EXTRA_CONTEXT=None,
+                        MEDIA_DEFS=None,
                         ITEM_CLASS=MediaFile):
         if LAYOUT_CHOICES is None:
-            LAYOUT_CHOICES = ( ('default', _('default gallery')), )
+            LAYOUT_CHOICES = (('default', _('default gallery')), )
 
         cls.add_to_class('layout', models.CharField(_('layout'),
                          choices=LAYOUT_CHOICES, max_length=15,
                          default=LAYOUT_CHOICES[0][0],)
         )
         cls.extra_context = EXTRA_CONTEXT
+        cls.media_defs = MEDIA_DEFS
 
         cls.feincms_item_editor_inline = MediaGalleryContentAdminInline
 
         class MediaGalleryContentFiles(models.Model):
-            class Meta:
-                app_label           = cls._meta.app_label
-                unique_together     = (('gallery', 'mediafile'), )
-                verbose_name        = _('media gallery content file')
-                verbose_name_plural = _('media gallery content files')
-                ordering            = ('ordering',)
 
-            gallery   = models.ForeignKey(cls, related_name="item_set",
+            class Meta:
+                app_label = cls._meta.app_label
+                unique_together = (('gallery', 'mediafile'), )
+                verbose_name = _('media gallery content file')
+                verbose_name_plural = _('media gallery content files')
+                ordering = ('ordering',)
+
+            gallery = models.ForeignKey(cls, related_name="item_set",
                                 on_delete=models.CASCADE)
             mediafile = models.ForeignKey(ITEM_CLASS, related_name="+",
                                 on_delete=models.CASCADE)
@@ -110,9 +114,9 @@ class MediaGalleryContent(models.Model):
                                 blank=True, null=True,
                                 related_name="+", on_delete=models.SET_NULL)
 
-            ordering  = models.IntegerField(default=0)
-            title     = models.CharField(_('title'), blank=True, max_length=80)
-            text      = models.TextField(_('text'), blank=True)
+            ordering = models.IntegerField(default=0)
+            title = models.CharField(_('title'), blank=True, max_length=80)
+            text = models.TextField(_('text'), blank=True)
 
             def __unicode__(self):
                 return u'Media Gallery %s - %s' % (self.gallery, self.mediafile)
@@ -150,13 +154,17 @@ class MediaGalleryContent(models.Model):
 
         admin.site.register(cls, MediaGalleryAdmin)
 
+    @property
+    def media(self):
+        return self.media_defs.get(self.layout, None)
+
     def __unicode__(self):
         return self.title
 
     def items(self):
         qs = self.item_set
 
-        m = { '-': '-ordering', '?': '?' }
+        m = {'-': '-ordering', '?': '?'}
         qs = qs.order_by(m.get(self.order, 'ordering'))
 
         if self.limit:
@@ -165,7 +173,7 @@ class MediaGalleryContent(models.Model):
         return qs.all()
 
     def render(self, request, **kwargs):
-        ctx = { 'have_icon_files': ('pdf', 'zip') }
+        ctx = {'have_icon_files': ('pdf', 'zip')}
 
         if self.extra_context is not None:
             if callable(self.extra_context):
@@ -173,12 +181,12 @@ class MediaGalleryContent(models.Model):
             else:
                 ctx = dict(self.extra_context())
 
-        ctx.update({ 'feincms_page': self.parent, 'object': self, 'gallery': self })
+        ctx.update({'feincms_page': self.parent, 'object': self, 'gallery': self})
 
         return render_to_string((
-                '%scontent-%s.html' % (self.template_prefix, self.layout),
-                '%scontent.html' % (self.template_prefix),
-                ), ctx, context_instance=RequestContext(request))
+            '%scontent-%s.html' % (self.template_prefix, self.layout),
+            '%scontent.html' % (self.template_prefix),
+        ), ctx, context_instance=RequestContext(request))
 
     # Accessor for admin_url templatetag
     def parent_opts(self):
@@ -189,9 +197,10 @@ class MediaGalleryContent(models.Model):
 
 # ------------------------------------------------------------------------
 class MediaGalleryDropAcceptor(object):
+
     def __init__(self, *args, **kwargs):
         self.mediaurl = urlparse(settings.MEDIA_URL)
-        self.mediachange_url = None # deferred until init is done
+        self.mediachange_url = None  # deferred until init is done
 
     def reverse_url(self, request, url, ctx):
         """
@@ -216,7 +225,7 @@ class MediaGalleryDropAcceptor(object):
         if self.mediachange_url is None:
             self.mediachange_url = reverse("admin:medialibrary_mediafile_change", args=(0,)).replace('0/', '')
 
-        out = { 'status': 404 }
+        out = {'status': 404}
         inurl = request.REQUEST.get('url')
         try:
             url = urlparse(inurl)
@@ -264,10 +273,10 @@ class MediaGalleryDropAcceptor(object):
 
                 image = admin_thumbnail(mediafile, dimensions="150x100")
 
-                ctx['mediafile_id']      = mediafile.id
-                ctx['mediafile_type']    = mediafile.type
+                ctx['mediafile_id'] = mediafile.id
+                ctx['mediafile_type'] = mediafile.type
                 ctx['mediafile_caption'] = unicode(mediafile)
-                ctx['mediafile_url']     = image
-                ctx['status']            = 200
+                ctx['mediafile_url'] = image
+                ctx['status'] = 200
 
 # ------------------------------------------------------------------------
