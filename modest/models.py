@@ -9,6 +9,7 @@
 
 from __future__ import absolute_import
 
+import json
 import logging
 from urlparse import urlparse
 
@@ -20,7 +21,6 @@ from django.db import models
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.utils import simplejson
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 
@@ -239,7 +239,7 @@ class MediaGalleryDropAcceptor(object):
         return self.build_response(out)
 
     def build_response(self, ctx):
-        r = HttpResponse(simplejson.dumps(ctx), content_type='application/json')
+        r = HttpResponse(json.dumps(ctx), content_type='application/json')
         r.status_code = ctx['status']
         return r
 
