@@ -19,7 +19,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, HttpResponseNotFound
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -186,7 +185,7 @@ class MediaGalleryContent(models.Model):
         return render_to_string((
             '%scontent-%s.html' % (self.template_prefix, self.layout),
             '%scontent.html' % (self.template_prefix),
-        ), ctx, context_instance=RequestContext(request))
+        ), ctx, request=request)
 
     # Accessor for admin_url templatetag
     def parent_opts(self):
