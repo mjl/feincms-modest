@@ -1,15 +1,13 @@
 # ------------------------------------------------------------------------
 # coding=utf-8
 # ------------------------------------------------------------------------
-#
 #  Created by Martin J. Laubach on 2013-03-21
 #  Copyright (c) 2013 Martin J. Laubach. All rights reserved.
-#
 # ------------------------------------------------------------------------
 
 from __future__ import absolute_import
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.utils.safestring import mark_safe
@@ -68,9 +66,9 @@ class MediaGalleryAdminBase(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super(MediaGalleryAdminBase, self).get_urls()
-        my_urls = patterns('',
+        my_urls = [
             url(r'^reverse-url/$', self.drop_acceptor, name='mediagallery-reverse-url')
-        )
+        ]
         return my_urls + urls
 
 # ------------------------------------------------------------------------
