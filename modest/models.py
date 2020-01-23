@@ -235,7 +235,7 @@ class MediaGalleryDropAcceptor(object):
             # Security check: only allow urls that come from this site
             if self.is_valid_drop_url(request, url):
                 self.reverse_url(request, url, out)
-        except Exception, e:
+        except Exception as e:
             logger.exception("%s raised exception for url \"%s\": %s", self.__class__.__name__, inurl, e)
             out['status'] = 500
 
