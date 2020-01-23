@@ -8,12 +8,19 @@ from __future__ import absolute_import
 
 import json
 import logging
-from urlparse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:  # py2
+    from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:  # dj 1.x
+    from django.core.urlresolvers import reverse
+
 from django.db import models
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template.loader import render_to_string
